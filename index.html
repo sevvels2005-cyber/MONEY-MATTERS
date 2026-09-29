@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Matters | Personal Finance Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="app-container">
+        <!-- Main Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-logo">
+                    <img src="assets/logo.png" alt="TRACKER Logo" class="logo-img">
+                </div>
+                <div class="brand-titles">
+                    <h1 class="app-title">MONEY MATTERS</h1>
+                    <p class="app-subtitle">Personal Finance Management &bull; Track. Understand. Manage.</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-open-clear-modal">
+                    <span class="icon" aria-hidden="true">&times;</span> Reset Data
+                </button>
+            </div>
+        </header>
+
+        <!-- Real-Life Motivation Banner -->
+        <section class="motivation-card" aria-label="Project Background">
+            <div class="motivation-icon" aria-hidden="true">💡</div>
+            <div class="motivation-content">
+                <h2>Real-Life Motivation</h2>
+                <p>
+                    "I receive scholarship money, but I was not clearly aware of where my money was being spent. 
+                    I also found it difficult to understand how much I could save. So I built <strong>Money Matters</strong> 
+                    to track my income, expenses, categories, and remaining balance."
+                </p>
+            </div>
+        </section>
+
+        <!-- Quick Actions & Form Trigger -->
+        <div class="quick-bar">
+            <div class="quick-buttons">
+                <button type="button" class="btn btn-income" id="btn-quick-income">
+                    <span class="icon">+</span> Add Income
+                </button>
+                <button type="button" class="btn btn-expense" id="btn-quick-expense">
+                    <span class="icon">+</span> Add Expense
+                </button>
+            </div>
+            <div class="connection-status" id="connection-status" title="Server Connection Status">
+                <span class="status-dot online" id="status-dot"></span>
+                <span id="status-text">Server Connected</span>
+            </div>
+        </div>
+
+        <!-- Metric Summary Cards -->
+        <section class="dashboard-grid" aria-label="Financial Summary Cards">
+            <!-- Total Income Card -->
+            <div class="card summary-card card-income">
+                <div class="card-header">
+                    <span class="card-label">Total Income</span>
+                    <span class="card-badge badge-income" aria-hidden="true">INCOME</span>
+                </div>
+                <div class="card-value" id="total-income">₹0</div>
+                <div class="card-footer">
+                    <span id="income-count-text">0 income entries recorded</span>
+                </div>
+            </div>
+
+            <!-- Total Expenses Card -->
+            <div class="card summary-card card-expense">
+                <div class="card-header">
+                    <span class="card-label">Total Expenses</span>
+                    <span class="card-badge badge-expense" aria-hidden="true">EXPENSE</span>
+                </div>
+                <div class="card-value" id="total-expenses">₹0</div>
+                <div class="card-footer">
+                    <span id="expense-count-text">0 expense entries recorded</span>
+                </div>
+            </div>
+
+            <!-- Remaining Balance Card -->
+            <div class="card summary-card card-balance">
+                <div class="card-header">
+                    <span class="card-label">Remaining Balance</span>
+                    <span class="card-badge badge-balance" id="balance-badge">AVAILABLE</span>
+                </div>
+                <div class="card-value" id="remaining-balance">₹0</div>
+                <div class="card-footer">
+                    <span id="balance-footer-text">Potential Savings</span>
+                </div>
+            </div>
+
+            <!-- Spending Percentage & Count Card -->
+            <div class="card summary-card card-metrics">
+                <div class="card-header">
+                    <span class="card-label">Spending Rate</span>
+                    <span class="card-badge badge-info">ANALYTICS</span>
+                </div>
+                <div class="card-value" id="spending-percentage">0%</div>
+                <div class="card-footer">
+                    <span id="transaction-total-count">0 total transactions</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Split: Category Overview & Add Form -->
+        <div class="dashboard-split">
+            <!-- Category Spending Analysis -->
+            <section class="card category-section" aria-label="Category Spending Breakdown">
+                <div class="section-title-wrap">
+                    <h2 class="section-title">Spending by Category</h2>
+                    <span class="highest-category-pill" id="highest-spending-pill">Highest: None</span>
+                </div>
+                
+                <div id="category-bars-container" class="category-bars-container">
+                    <div class="empty-state-sm" id="category-empty-state">
+                        <p>No expenses recorded yet to analyze.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Add Transaction Form Card -->
+            <section class="card form-card" aria-label="Add Transaction Form">
+                <h2 class="section-title" id="form-title">Add Transaction</h2>
+                
+                <form id="transaction-form" class="transaction-form" novalidate>
+                    <input type="hidden" id="tx-id" value="">
+
+                    <!-- Type Selector Tabs -->
+                    <div class="form-group">
+                        <label class="form-label">Transaction Type <span class="required">*</span></label>
+                        <div class="type-toggle-group" role="radiogroup" aria-label="Transaction Type">
+                            <button type="button" class="type-tab active" id="tab-income" data-type="income">
+                                Income
+                            </button>
+                            <button type="button" class="type-tab" id="tab-expense" data-type="expense">
+                                Expense
+                            </button>
+                        </div>
+                        <input type="hidden" id="tx-type" value="income">
+                    </div>
+
+                    <!-- Amount Input -->
+                    <div class="form-group">
+                        <label for="tx-amount" class="form-label">Amount (₹) <span class="required">*</span></label>
+                        <div class="input-with-symbol">
+                            <span class="symbol">₹</span>
+                            <input type="number" id="tx-amount" class="form-input" placeholder="e.g. 5000" min="0.01" step="any" required>
+                        </div>
+                        <span class="error-text" id="amount-error"></span>
+                    </div>
+
+                    <!-- Category Select -->
+                    <div class="form-group">
+                        <label for="tx-category" class="form-label">Category <span class="required">*</span></label>
+                        <select id="tx-category" class="form-select" required>
+                            <!-- Options populated dynamically based on type -->
+                        </select>
+                        <span class="error-text" id="category-error"></span>
+                    </div>
+
+                    <!-- Description Input -->
+                    <div class="form-group">
+                        <label for="tx-description" class="form-label">Description</label>
+                        <input type="text" id="tx-description" class="form-input" placeholder="e.g., Monthly scholarship" maxlength="100">
+                        <span class="error-text" id="description-error"></span>
+                    </div>
+
+                    <!-- Date Input -->
+                    <div class="form-group">
+                        <label for="tx-date" class="form-label">Date <span class="required">*</span></label>
+                        <input type="date" id="tx-date" class="form-input" required>
+                        <span class="error-text" id="date-error"></span>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btn-submit-tx">
+                            Add Transaction
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-edit" style="display: none;">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- Transaction History Section -->
+        <section class="card history-section" aria-label="Transaction History">
+            <div class="history-header">
+                <h2 class="section-title">Transaction History</h2>
+                
+                <!-- Filters & Search Controls -->
+                <div class="filter-controls">
+                    <div class="search-wrap">
+                        <input type="text" id="search-input" class="form-input search-input" placeholder="Search description, category...">
+                        <button type="button" id="search-clear-btn" class="search-clear-btn" title="Clear search" style="display: none;">&times;</button>
+                    </div>
+
+                    <div class="filter-select-wrap">
+                        <select id="filter-type" class="form-select select-sm">
+                            <option value="all">All Types</option>
+                            <option value="income">Income Only</option>
+                            <option value="expense">Expenses Only</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-select-wrap">
+                        <select id="filter-category" class="form-select select-sm">
+                            <option value="all">All Categories</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="filter-select-wrap">
+                        <select id="sort-by" class="form-select select-sm">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="highest">Highest Amount</option>
+                            <option value="lowest">Lowest Amount</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-reset-filters">
+                        Reset Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Filter Status Bar -->
+            <div class="filter-status-bar" id="filter-status-bar" style="display: none;">
+                <span id="filter-status-text">Showing filtered transactions</span>
+                <span class="filtered-badge" id="filtered-count-badge">0 found</span>
+            </div>
+
+            <!-- Table Container -->
+            <div class="table-wrapper">
+                <table class="transaction-table" id="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th class="text-right">Amount</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+
+                <!-- Empty State Block -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <div class="empty-icon" aria-hidden="true">💸</div>
+                    <h3>No Transactions Found</h3>
+                    <p id="empty-state-message">Add your first income or expense to start tracking your financial journey.</p>
+                    <button type="button" class="btn btn-primary" id="btn-empty-add">
+                        + Add First Transaction
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p><strong>MONEY MATTERS</strong> &bull; Built with standard HTML, CSS, JavaScript &amp; Python.</p>
+            <p class="footer-note">Local financial records stored safely in <code>data/transactions.json</code>.</p>
+        </footer>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-backdrop" tabIndex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Confirm Deletion</h3>
+                <button type="button" class="modal-close" id="btn-close-delete-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this transaction?</p>
+                <div class="modal-tx-preview" id="delete-tx-preview"></div>
+                <p class="warning-note">This action will permanently update your local JSON storage.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-delete">Delete Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset / Clear All Confirmation Modal -->
+    <div id="clear-modal" class="modal-backdrop" tabIndex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Reset All Financial Data</h3>
+                <button type="button" class="modal-close" id="btn-close-clear-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>This will <strong>permanently remove all locally stored transactions</strong> from <code>data/transactions.json</code>.</p>
+                <p class="warning-note">Are you sure you want to continue?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-clear">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-clear">Yes, Reset All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
